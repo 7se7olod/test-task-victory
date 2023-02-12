@@ -2,6 +2,7 @@
   <div class="user-page">
     <div class="users-page-container">
       <div class="user-page-header">
+        <back-button @click="toBackPage"></back-button>
         <h1 class="users-page-title">{{ currentUser.name }}</h1>
         <div class="user-page-nickname">@{{ currentUser.username }}</div>
       </div>
@@ -19,10 +20,11 @@
 
 <script>
 import UserInfoItem from '@/components/UserInfoItem'
+import BackButton from '@/components/UI/BackButton'
 
 export default {
   name: 'UserPage',
-  components: { UserInfoItem },
+  components: { BackButton, UserInfoItem },
   data () {
     return {
       currentUser: {},
@@ -48,6 +50,10 @@ export default {
       } else {
         alert('Ошибка HTTP: ' + response.status)
       }
+    },
+    toBackPage () {
+      // this.$router.back()
+      this.$router.push('/')
     }
   },
   mounted () {

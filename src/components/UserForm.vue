@@ -1,47 +1,38 @@
 <template>
   <Form @submit="onSubmit" class="user-form">
     <div class="user-form-inputs">
-      <label class="user-label">Name
-        <Field name="name" type="text" :rules="validateName" class="user-input"/>
-        <ErrorMessage class="user-input-error" name="name"/>
-      </label>
-      <label class="user-label">Username
-        <Field name="username" type="text" :rules="validateUsername" class="user-input"/>
-        <ErrorMessage class="user-input-error" name="username"/>
-      </label>
-      <label class="user-label">Email
-        <Field name="email" type="email" :rules="validateEmail" class="user-input"/>
-        <ErrorMessage class="user-input-error" name="email"/>
-      </label>
-      <label class="user-label">Phone
-        <Field name="phone" type="tel" :rules="validatePhone" class="user-input"/>
-        <ErrorMessage class="user-input-error" name="phone"/>
-      </label>
-      <label class="user-label">Website
-        <Field name="website" type="text" :rules="validateWebsite" class="user-input"/>
-        <ErrorMessage class="user-input-error" name="website"/>
-      </label>
-      <label class="user-label">Company
-        <Field name="company" type="text" :rules="validateCompany" class="user-input"/>
-        <ErrorMessage class="user-input-error" name="company"/>
-      </label>
-      <label class="user-label">City
-        <Field name="city" type="text" :rules="validateCity" class="user-input"/>
-        <ErrorMessage class="user-input-error" name="city"/>
-      </label>
-      <label class="user-label">Street
-        <Field name="street" type="text" :rules="validateStreet" class="user-input"/>
-        <ErrorMessage class="user-input-error" name="street"/>
-      </label>
-      <div class="user-form-item">
-        <label class="user-label">Suite
-          <Field name="suite" type="text" :rules="validateSuite" class="user-input"/>
-          <ErrorMessage class="user-input-error" name="suite"/>
+      <div v-for="field in fields"
+           :key="field.name">
+        <label class="user-label"
+               v-if="field.name !== 'Suite' && field.name !== 'Zipcode'">
+          {{ field.name }}
+          <Field :name=field.name.toLowerCase()
+                 type="text"
+                 :rules=field.rules
+                 class="user-input"/>
+          <ErrorMessage class="user-input-error"
+                        :name=field.name.toLowerCase() />
         </label>
-        <label class="user-label">Zipcode
-          <Field name="zipcode" type="text" :rules="validateZipcode" class="user-input"/>
-          <ErrorMessage class="user-input-error" name="zipcode"/>
-        </label>
+        <div class="user-form-item" v-if="field.name === 'Suite'">
+          <label class="user-label">
+            Suite
+            <Field name="suite"
+                   type="text"
+                   :rules="this.validation.validateSuite"
+                   class="user-input"/>
+            <ErrorMessage class="user-input-error"
+                          name="suite"/>
+          </label>
+          <label class="user-label">
+            Zipcode
+            <Field name="zipcode"
+                   type="text"
+                   :rules="this.validation.validateZipcode"
+                   class="user-input"/>
+            <ErrorMessage class="user-input-error"
+                          name="zipcode"/>
+          </label>
+        </div>
       </div>
     </div>
     <user-button>Create user</user-button>
@@ -50,15 +41,63 @@
 
 <script>
 import UserButton from '@/components/UI/UserButton'
-import { Form, Field, ErrorMessage } from 'vee-validate'
+import { ErrorMessage, Field, Form } from 'vee-validate'
+import { Validation } from '@/helpers/Validation'
 
 export default {
   name: 'UserForm',
   components: {
     UserButton,
-    ErrorMessage,
     Form,
+    ErrorMessage,
     Field
+  },
+  data () {
+    return {
+      validation: Validation,
+      fields: [
+        {
+          name: 'Name',
+          rules: Validation.validateName
+        },
+        {
+          name: 'Username',
+          rules: Validation.validateUsername
+        },
+        {
+          name: 'Email',
+          rules: Validation.validateEmail
+        },
+        {
+          name: 'Phone',
+          rules: Validation.validatePhone
+        },
+        {
+          name: 'Website',
+          rules: Validation.validateWebsite
+        },
+        {
+          name: 'City',
+          rules: Validation.validateCity
+        },
+        {
+          name: 'Street',
+          rules: Validation.validateStreet
+        },
+        {
+          name: 'Company',
+          rules: Validation.validateCompany
+        },
+        {
+          name: 'Suite',
+          rules: Validation.validateSuite
+        },
+        {
+          name: 'Zipcode',
+          rules: Validation.validateZipcode
+        }
+      ]
+    }
   },
   methods: {
     onSubmit (result) {
@@ -80,91 +119,6 @@ export default {
       } catch (error) {
         console.log('Error:', error)
       }
-    },
-    inputCheckIsEmpty (valueInput) {
-      if (!valueInput) {
-        return 'This field is required'
-      }
-    },
-    validateName (value) {
-      this.inputCheckIsEmpty(value)
-      const regex = /^[a-zA-Z ]{2,30}$/
-      if (!regex.test(value)) {
-        return 'This field must be a valid name'
-      }
-      return true
-    },
-    validateUsername (value) {
-      this.inputCheckIsEmpty(value)
-      const regex = /^[a-zA-Z ]{2,30}$/
-      if (!regex.test(value)) {
-        return 'This field must be a valid username'
-      }
-      return true
-    },
-    validatePhone (value) {
-      this.inputCheckIsEmpty(value)
-      const regex = /^[/+]?[(]?[0-9]{3}[)]?[-\s/.]?[0-9]{3}[-\s/.]?[0-9]{4,6}$/im
-      if (!regex.test(value)) {
-        return 'This field must be a valid phone'
-      }
-      return true
-    },
-    validateEmail (value) {
-      this.inputCheckIsEmpty(value)
-      const regex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i
-      if (!regex.test(value)) {
-        return 'This field must be a valid email'
-      }
-      return true
-    },
-    validateWebsite (value) {
-      this.inputCheckIsEmpty(value)
-      const regex = /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._/+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_/+.~#?&//=]*)/g
-      if (!regex.test(value)) {
-        return 'This field must be a valid email'
-      }
-      return true
-    },
-    validateCompany (value) {
-      this.inputCheckIsEmpty(value)
-      const regex = /^[a-zA-Z ]{2,30}$/
-      if (!regex.test(value)) {
-        return 'This field must be a valid company'
-      }
-      return true
-    },
-    validateCity (value) {
-      this.inputCheckIsEmpty(value)
-      const regex = /^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/
-      if (!regex.test(value)) {
-        return 'This field must be a valid city'
-      }
-      return true
-    },
-    validateStreet (value) {
-      this.inputCheckIsEmpty(value)
-      const regex = /^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/
-      if (!regex.test(value)) {
-        return 'This field must be a valid street'
-      }
-      return true
-    },
-    validateSuite (value) {
-      this.inputCheckIsEmpty(value)
-      const regex = /^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/
-      if (!regex.test(value)) {
-        return 'This field must be a valid suite'
-      }
-      return true
-    },
-    validateZipcode (value) {
-      this.inputCheckIsEmpty(value)
-      const regex = /(^\d{5}$)|(^\d{5}-\d{4}$)/
-      if (!regex.test(value)) {
-        return 'This field must be a valid zipcode'
-      }
-      return true
     }
   }
 }
